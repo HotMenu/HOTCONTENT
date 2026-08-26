@@ -257,8 +257,8 @@ header{
 
 .products{
  display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:20px;
+ grid-template-columns:repeat(4, minmax(0, 1fr));
+ gap:18px;
 }
 
 /* ================= CARD ================= */
@@ -935,8 +935,9 @@ footer{
 @media(max-width:900px){
 
  .products{
-  grid-template-columns:repeat(2,1fr);
- }
+ grid-template-columns:repeat(2, minmax(0, 1fr));
+ gap:12px;
+}
 
  .preview{
   height:190px;
@@ -983,13 +984,18 @@ footer{
  }
 
  .products{
-  display:flex;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  gap:13px;
-  padding:3px 15px 18px 2px;
-  scrollbar-width:none;
- }
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:10px;
+}
+
+.card{
+ display:none;
+}
+
+.card.mobile-visible{
+ display:block;
+}
 
  .products::-webkit-scrollbar{
   display:none;
@@ -1056,6 +1062,43 @@ footer{
 
  .price{
   font-size:14px;
+ }
+}
+.mobile-pagination{
+ display:none;
+ justify-content:center;
+ align-items:center;
+ gap:14px;
+ margin-top:22px;
+}
+
+.mobile-pagination button{
+ width:38px;
+ height:38px;
+ border:1px solid var(--border);
+ background:#151515;
+ color:#fff;
+ border-radius:8px;
+ font-size:20px;
+ cursor:pointer;
+}
+
+.mobile-pagination button:hover{
+ background:var(--red);
+ border-color:var(--red);
+}
+
+.mobile-pagination span{
+ min-width:45px;
+ text-align:center;
+ font-size:12px;
+ font-weight:bold;
+ color:#aaa;
+}
+
+@media(max-width:600px){
+ .mobile-pagination{
+  display:flex;
  }
 }
 </style>
@@ -1742,6 +1785,11 @@ footer{
 
 
  </div>
+ <div class="mobile-pagination">
+    <button id="prevPage">‹</button>
+    <span id="pageInfo">1 / 2</span>
+    <button id="nextPage">›</button>
+</div>
 
 </section>
 
@@ -3013,23 +3061,17 @@ setInterval(()=>{
 
 const fakePayments = [
 
- ["Payment received","A customer just purchased Cp2."],
+ ["Payment received","A customer just purchased Premium Pack #01."],
 
- ["PayPal payment","Cp1 was just purchased."],
+ ["PayPal payment","Premium Pack #03 was just purchased."],
 
- ["Payment received","A customer purchased a Vip group."],
+ ["Payment received","A customer purchased a premium collection."],
 
- ["New order","Mom and Son was just ordered."],
+ ["New order","Premium Pack #02 was just ordered."],
 
- ["PayPal payment","Lizzy and bro order was completed."],
+ ["PayPal payment","A new premium order was completed."],
 
- ["Payment received","Ayumi Girl was just purchased."],
-
-  ["New order","Teens and Dog was just ordered."],
-
- ["PayPal payment","Amelia Blonde order was completed."],
-
- ["Payment received","Emmi Seller was just purchased."]
+ ["Payment received","Premium Pack #04 was just purchased."]
 
 ];
 
@@ -3157,6 +3199,66 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 
 });
+/* ================= MOBILE PAGINATION ================= */
+
+let mobilePage = 1;
+const cardsPerMobilePage = 9;
+
+function updateMobilePagination(){
+
+ const cards = [...document.querySelectorAll(".products .card")];
+
+ const totalPages = Math.max(
+  1,
+  Math.ceil(cards.length / cardsPerMobilePage)
+ );
+
+ if(mobilePage > totalPages){
+  mobilePage = totalPages;
+ }
+
+ const start = (mobilePage - 1) * cardsPerMobilePage;
+ const end = start + cardsPerMobilePage;
+
+ cards.forEach((card,index)=>{
+  card.classList.toggle(
+   "mobile-visible",
+   index >= start && index < end
+  );
+ });
+
+ document.getElementById("pageInfo").textContent =
+  mobilePage + " / " + totalPages;
+
+ document.getElementById("prevPage").disabled =
+  mobilePage === 1;
+
+ document.getElementById("nextPage").disabled =
+  mobilePage === totalPages;
+}
+
+document.getElementById("prevPage").onclick = function(){
+ if(mobilePage > 1){
+  mobilePage--;
+  updateMobilePagination();
+ }
+};
+
+document.getElementById("nextPage").onclick = function(){
+
+ const totalCards =
+  document.querySelectorAll(".products .card").length;
+
+ const totalPages =
+  Math.ceil(totalCards / cardsPerMobilePage);
+
+ if(mobilePage < totalPages){
+  mobilePage++;
+  updateMobilePagination();
+ }
+};
+
+updateMobilePagination();
 
 </script>
 
